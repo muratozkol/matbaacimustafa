@@ -552,12 +552,12 @@
             });
         });
 
-        // 🎵 Sub-page Music Continuation System
+        // 🎵 Simple Sub-page Music System
         (function() {
             // Global müzik player'ı kontrol et veya oluştur
             let audioPlayer = window.globalMusicPlayer;
             
-            if (!audioPlayer || !window.musicInitialized) {
+            if (!audioPlayer) {
                 // Ana sayfadan gelmediyse player oluştur
                 audioPlayer = document.createElement('audio');
                 audioPlayer.id = 'globalBgMusic';
@@ -568,22 +568,15 @@
                 document.body.appendChild(audioPlayer);
                 
                 window.globalMusicPlayer = audioPlayer;
-                window.musicInitialized = true;
             }
             
             // localStorage'dan müzik durumunu al
             const savedTime = parseFloat(localStorage.getItem('musicTime') || 0);
             const wasPlaying = localStorage.getItem('musicPlaying') === 'true';
-            const savedVolume = localStorage.getItem('musicVolume');
             
-            // Ses seviyesini ayarla
-            if (savedVolume) {
-                audioPlayer.volume = parseFloat(savedVolume);
-            }
-            
-            // Müziği devam ettir
+            // Müziği devam ettir - sadece önceden çalıyorsa
             function continueMusicSeamlessly() {
-                if (wasPlaying && audioPlayer.paused) {
+                if (wasPlaying && audioPlayer) {
                     if (savedTime > 0) {
                         audioPlayer.currentTime = savedTime;
                     }
@@ -592,42 +585,130 @@
                         console.log('🎵 Müzik alt sayfada devam ediyor');
                         localStorage.setItem('musicPlaying', 'true');
                     }).catch(err => {
-                        console.log('🎵 Müzik devam ettirilemiyor:', err);
-                        // Akıllı Kullanıcı Etkileşimi Sistemi - Her türlü hareketi yakala
-                        const triggerMusic = () => {
+                        console.log('🎵 Müzik devam ettirilemiyor (browser restriction):', err);
+                        // Sadece click'te başlat
+                        const handleClick = () => {
                             continueMusicSeamlessly();
-                            removeAllTriggers();
+                            document.removeEventListener('click', handleClick);
+                            console.log('🎵 Click ile müzik devam ettirildi');
+                        };
+                        document.addEventListener('click', handleClick);
+                    });
+                }
+            }
+            
+            // Sayfa yüklenince müziği devam ettir
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', continueMusicSeamlessly);
+            } else {
+                continueMusicSeamlessly();
+            }
+            
+            // Pozisyon kaydetme
+            setInterval(() => {
+                if (audioPlayer && !audioPlayer.paused && audioPlayer.currentTime > 0) {
+                    localStorage.setItem('musicTime', audioPlayer.currentTime.toString());
+                }
+            }, 500);
+            
+            // Sayfa kapanırken pozisyonu kaydet
+            function saveMusicState() {
+                if (audioPlayer && !audioPlayer.paused) {
+                    localStorage.setItem('musicTime', audioPlayer.currentTime.toString());
+                    localStorage.setItem('musicPlaying', 'true');
+                } else {
+                    localStorage.setItem('musicPlaying', 'false');
+                }
+            }
+            
+            window.addEventListener('beforeunload', saveMusicState);
+            window.addEventListener('pagehide', saveMusicState);
+        })();
                         };
 
                         const removeAllTriggers = () => {
+                            // Desktop events
                             document.removeEventListener('click', triggerMusic);
-                            document.removeEventListener('touchstart', triggerMusic);
-                            document.removeEventListener('touchmove', triggerMusic);
                             document.removeEventListener('mousemove', triggerMusic);
-                            document.removeEventListener('scroll', triggerMusic);
-                            document.removeEventListener('keydown', triggerMusic);
                             document.removeEventListener('mousedown', triggerMusic);
                             document.removeEventListener('mouseup', triggerMusic);
                             document.removeEventListener('wheel', triggerMusic);
+                            document.removeEventListener('keydown', triggerMusic);
+                            document.removeEventListener('keyup', triggerMusic);
+                            
+                            // Mobile touch events (passive for performance)
+                            document.removeEventListener('touchstart', triggerMusic);
+                            document.removeEventListener('touchmove', triggerMusic);
+                            document.removeEventListener('touchend', triggerMusic);
+                            document.removeEventListener('touchcancel', triggerMusic);
+                            
+                            // Scroll events (passive for mobile)
+                            document.removeEventListener('scroll', triggerMusic);
+                            window.removeEventListener('scroll', triggerMusic);
+                            
+                            // Mobile device events
                             window.removeEventListener('devicemotion', triggerMusic);
                             window.removeEventListener('deviceorientation', triggerMusic);
+                            window.removeEventListener('orientationchange', triggerMusic);
+                            
+                            // Pointer events (modern browsers)
+                            document.removeEventListener('pointerdown', triggerMusic);
+                            document.removeEventListener('pointermove', triggerMusic);
+                            document.removeEventListener('pointerup', triggerMusic);
                         };
 
-                        // Her türlü etkileşimi yakala
+                        // UserActivation API desteği kontrolü
+                        const hasUserActivation = () => {
+                            try {
+                                return navigator.userActivation && navigator.userActivation.hasBeenActive;
+                            } catch (e) {
+                                return false;
+                            }
+                        };
+
+                        // Smart trigger - UserActivation varsa direkt çal
+                        if (hasUserActivation()) {
+                            console.log('🎵 UserActivation tespit edildi, müzik başlatılıyor...');
+                            triggerMusic();
+                            return;
+                        }
+
+                        // Desktop events
                         document.addEventListener('click', triggerMusic, { once: true });
-                        document.addEventListener('touchstart', triggerMusic, { once: true });
-                        document.addEventListener('touchmove', triggerMusic, { once: true });
                         document.addEventListener('mousemove', triggerMusic, { once: true });
-                        document.addEventListener('scroll', triggerMusic, { once: true });
-                        document.addEventListener('keydown', triggerMusic, { once: true });
                         document.addEventListener('mousedown', triggerMusic, { once: true });
                         document.addEventListener('mouseup', triggerMusic, { once: true });
                         document.addEventListener('wheel', triggerMusic, { once: true });
-                        
-                        // Mobil cihaz hareketleri
+                        document.addEventListener('keydown', triggerMusic, { once: true });
+                        document.addEventListener('keyup', triggerMusic, { once: true });
+
+                        // Mobile touch events - PASSIVE for performance (çok kritik!)
+                        document.addEventListener('touchstart', triggerMusic, { once: true, passive: true });
+                        document.addEventListener('touchmove', triggerMusic, { once: true, passive: true });
+                        document.addEventListener('touchend', triggerMusic, { once: true, passive: true });
+                        document.addEventListener('touchcancel', triggerMusic, { once: true, passive: true });
+
+                        // Scroll events - PASSIVE for mobile performance
+                        document.addEventListener('scroll', triggerMusic, { once: true, passive: true });
+                        window.addEventListener('scroll', triggerMusic, { once: true, passive: true });
+
+                        // Mobile device motion - ANY device movement triggers music
                         if (window.DeviceMotionEvent) {
                             window.addEventListener('devicemotion', triggerMusic, { once: true });
                         }
+                        if (window.DeviceOrientationEvent) {
+                            window.addEventListener('deviceorientation', triggerMusic, { once: true });
+                        }
+                        window.addEventListener('orientationchange', triggerMusic, { once: true });
+
+                        // Modern Pointer Events (replaces mouse/touch)
+                        if (window.PointerEvent) {
+                            document.addEventListener('pointerdown', triggerMusic, { once: true });
+                            document.addEventListener('pointermove', triggerMusic, { once: true });
+                            document.addEventListener('pointerup', triggerMusic, { once: true });
+                        }
+
+                        console.log('🎵 Süper gelişmiş mobil etkileşim sistemi aktif - herhangi bir hareket müziği başlatacak!');
                         if (window.DeviceOrientationEvent) {
                             window.addEventListener('deviceorientation', triggerMusic, { once: true });
                         }
@@ -679,7 +760,10 @@
             
             console.log('🎵 Alt Sayfa Müzik Sistemi Aktif');
         })();
-    </script>
+        </script>
+    
+    <!-- 🎵 KUSURSUZ MÜZİK SİSTEMİ v2.0 - Sayfa geçişlerinde ASLA kapanmaz! -->
+    <script src="../js/music-manager.js"></script>
 </body>
 
 </html>

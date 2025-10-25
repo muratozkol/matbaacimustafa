@@ -27,8 +27,8 @@
     <meta property="business:contact_data:email" content="musti_usta55@hotmail.com">
     <meta name="geo.region" content="TR-55">
     <meta name="geo.placename" content="Çarşamba">
-    <meta name="geo.position" content="41.1972;36.7298">
-    <meta name="ICBM" content="41.1972, 36.7298">
+    <meta name="geo.position" content="41.1969;36.7272">
+    <meta name="ICBM" content="41.1969, 36.7272">
     <meta name="twitter:card" content="summary">
     <meta content="width=device-width, initial-scale=1" name="viewport">
     <meta content="Webflow" name="generator">
@@ -262,7 +262,7 @@
 
                             <!-- Google Maps -->
                             <div class="map-section">
-                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3017.6896745697796!2d36.98!3d41.19!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDHCsDExJzI0LjAiTiAzNsKwNTgnNDguMCJF!5e0!3m2!1str!2str!4v1234567890123!5m2!1str!2str" 
+                                <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3018.4562847953!2d36.725517815287194!3d41.19691167928583!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zNDHCsDExJzQ4LjkiTiAzNsKwNDMnMzguMCJF!5e0!3m2!1str!2str!4v1698322745123!5m2!1str!2str" 
                                     allowfullscreen="" loading="lazy"></iframe>
                             </div>
                         </div>
@@ -625,134 +625,11 @@
             });
         });
 
-        // 🎵 Sub-page Music Continuation System
-        (function() {
-            // Global müzik player'ı kontrol et veya oluştur
-            let audioPlayer = window.globalMusicPlayer;
-            
-            if (!audioPlayer || !window.musicInitialized) {
-                // Ana sayfadan gelmediyse player oluştur
-                audioPlayer = document.createElement('audio');
-                audioPlayer.id = 'globalBgMusic';
-                audioPlayer.loop = true;
-                audioPlayer.volume = 0.3;
-                audioPlayer.preload = 'auto';
-                audioPlayer.innerHTML = '<source src="../music.mp3" type="audio/mpeg">';
-                document.body.appendChild(audioPlayer);
-                
-                window.globalMusicPlayer = audioPlayer;
-                window.musicInitialized = true;
-            }
-            
-            // localStorage'dan müzik durumunu al
-            const savedTime = parseFloat(localStorage.getItem('musicTime') || 0);
-            const wasPlaying = localStorage.getItem('musicPlaying') === 'true';
-            const savedVolume = localStorage.getItem('musicVolume');
-            
-            // Ses seviyesini ayarla
-            if (savedVolume) {
-                audioPlayer.volume = parseFloat(savedVolume);
-            }
-            
-            // Müziği devam ettir
-            function continueMusicSeamlessly() {
-                if (wasPlaying && audioPlayer.paused) {
-                    if (savedTime > 0) {
-                        audioPlayer.currentTime = savedTime;
-                    }
-                    
-                    audioPlayer.play().then(() => {
-                        console.log('🎵 Müzik alt sayfada devam ediyor');
-                        localStorage.setItem('musicPlaying', 'true');
-                    }).catch(err => {
-                        console.log('🎵 Müzik devam ettirilemiyor:', err);
-                        // Akıllı Kullanıcı Etkileşimi Sistemi - Her türlü hareketi yakala
-                        const triggerMusic = () => {
-                            continueMusicSeamlessly();
-                            removeAllTriggers();
-                        };
-
-                        const removeAllTriggers = () => {
-                            document.removeEventListener('click', triggerMusic);
-                            document.removeEventListener('touchstart', triggerMusic);
-                            document.removeEventListener('touchmove', triggerMusic);
-                            document.removeEventListener('mousemove', triggerMusic);
-                            document.removeEventListener('scroll', triggerMusic);
-                            document.removeEventListener('keydown', triggerMusic);
-                            document.removeEventListener('mousedown', triggerMusic);
-                            document.removeEventListener('mouseup', triggerMusic);
-                            document.removeEventListener('wheel', triggerMusic);
-                            window.removeEventListener('devicemotion', triggerMusic);
-                            window.removeEventListener('deviceorientation', triggerMusic);
-                        };
-
-                        // Her türlü etkileşimi yakala
-                        document.addEventListener('click', triggerMusic, { once: true });
-                        document.addEventListener('touchstart', triggerMusic, { once: true });
-                        document.addEventListener('touchmove', triggerMusic, { once: true });
-                        document.addEventListener('mousemove', triggerMusic, { once: true });
-                        document.addEventListener('scroll', triggerMusic, { once: true });
-                        document.addEventListener('keydown', triggerMusic, { once: true });
-                        document.addEventListener('mousedown', triggerMusic, { once: true });
-                        document.addEventListener('mouseup', triggerMusic, { once: true });
-                        document.addEventListener('wheel', triggerMusic, { once: true });
-                        
-                        // Mobil cihaz hareketleri
-                        if (window.DeviceMotionEvent) {
-                            window.addEventListener('devicemotion', triggerMusic, { once: true });
-                        }
-                        if (window.DeviceOrientationEvent) {
-                            window.addEventListener('deviceorientation', triggerMusic, { once: true });
-                        }
-                    });
-                }
-            }
-            
-            // Sayfa yüklenince müziği devam ettir
-            if (document.readyState === 'loading') {
-                document.addEventListener('DOMContentLoaded', continueMusicSeamlessly);
-            } else {
-                continueMusicSeamlessly();
-            }
-            
-            // Pozisyon kaydetme - her 500ms'de bir kaydet
-            const saveInterval = setInterval(() => {
-                if (!audioPlayer.paused && audioPlayer.currentTime > 0) {
-                    localStorage.setItem('musicTime', audioPlayer.currentTime.toString());
-                }
-            }, 500);
-            
-            // Sayfa kapanırken/gizlenirken pozisyonu kaydet
-            function saveMusicState() {
-                if (audioPlayer && !audioPlayer.paused) {
-                    localStorage.setItem('musicTime', audioPlayer.currentTime.toString());
-                    localStorage.setItem('musicPlaying', 'true');
-                } else {
-                    localStorage.setItem('musicPlaying', 'false');
-                }
-            }
-            
-            window.addEventListener('beforeunload', saveMusicState);
-            window.addEventListener('pagehide', saveMusicState);
-            window.addEventListener('unload', saveMusicState);
-            
-            // Visibility değişince kaydet
-            document.addEventListener('visibilitychange', () => {
-                if (document.hidden) {
-                    saveMusicState();
-                } else {
-                    // Sayfa geri gelince müziği devam ettir
-                    if (localStorage.getItem('musicPlaying') === 'true' && audioPlayer.paused) {
-                        const currentSavedTime = parseFloat(localStorage.getItem('musicTime') || 0);
-                        audioPlayer.currentTime = currentSavedTime;
-                        audioPlayer.play().catch(() => {});
-                    }
-                }
-            });
-            
-            console.log('🎵 Alt Sayfa Müzik Sistemi Aktif');
-        })();
-    </script>
+        
+        </script>
+    
+    <!-- 🎵 KUSURSUZ MÜZİK SİSTEMİ v2.0 - Sayfa geçişlerinde ASLA kapanmaz! -->
+    <script src="../js/music-manager.js"></script>
 </body>
 
 </html>
