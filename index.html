@@ -1091,59 +1091,145 @@
             });
         });
 
-        // 🎵 Background Music System
+        // 🎵 Professional Background Music System - Global Site Music Manager
         (function() {
+            // Sadece bir kez player oluştur - diğer sayfalarda bu kod çalışmayacak
+            if (window.globalMusicPlayer) return;
+            
             const audioPlayer = document.createElement('audio');
-            audioPlayer.id = 'bgMusic';
+            audioPlayer.id = 'globalBgMusic';
             audioPlayer.loop = true;
-            audioPlayer.volume = 0.5;
+            audioPlayer.volume = 0.3;
             audioPlayer.preload = 'auto';
             audioPlayer.innerHTML = '<source src="music.mp3" type="audio/mpeg">';
             document.body.appendChild(audioPlayer);
             
+            // Global değişken oluştur
+            window.globalMusicPlayer = audioPlayer;
+            window.musicInitialized = true;
+            
             // localStorage'dan son pozisyonu al
             const savedTime = parseFloat(localStorage.getItem('musicTime') || 0);
+            const wasPlaying = localStorage.getItem('musicPlaying') === 'true';
             
             // Müziği başlat
             function startMusic() {
-                audioPlayer.currentTime = savedTime;
-                audioPlayer.play().catch(err => {
-                    console.log('Müzik otomatik başlatılamadı:', err);
+                if (savedTime > 0) {
+                    audioPlayer.currentTime = savedTime;
+                }
+                
+                audioPlayer.play().then(() => {
+                    console.log('🎵 Müzik başlatıldı');
+                    localStorage.setItem('musicPlaying', 'true');
+                }).catch(err => {
+                    console.log('🎵 Müzik otomatik başlatılamadı, kullanıcı etkileşimi bekleniyor:', err);
+                    // Akıllı Kullanıcı Etkileşimi Sistemi - Her türlü hareketi yakala
+                    const triggerMusic = () => {
+                        startMusic();
+                        localStorage.setItem('musicPlaying', 'true');
+                        removeAllTriggers();
+                    };
+
+                    const removeAllTriggers = () => {
+                        document.removeEventListener('click', triggerMusic);
+                        document.removeEventListener('touchstart', triggerMusic);
+                        document.removeEventListener('touchmove', triggerMusic);
+                        document.removeEventListener('mousemove', triggerMusic);
+                        document.removeEventListener('scroll', triggerMusic);
+                        document.removeEventListener('keydown', triggerMusic);
+                        document.removeEventListener('mousedown', triggerMusic);
+                        document.removeEventListener('mouseup', triggerMusic);
+                        document.removeEventListener('wheel', triggerMusic);
+                        window.removeEventListener('devicemotion', triggerMusic);
+                        window.removeEventListener('deviceorientation', triggerMusic);
+                    };
+
+                    // Her türlü etkileşimi yakala
+                    document.addEventListener('click', triggerMusic, { once: true });
+                    document.addEventListener('touchstart', triggerMusic, { once: true });
+                    document.addEventListener('touchmove', triggerMusic, { once: true });
+                    document.addEventListener('mousemove', triggerMusic, { once: true });
+                    document.addEventListener('scroll', triggerMusic, { once: true });
+                    document.addEventListener('keydown', triggerMusic, { once: true });
+                    document.addEventListener('mousedown', triggerMusic, { once: true });
+                    document.addEventListener('mouseup', triggerMusic, { once: true });
+                    document.addEventListener('wheel', triggerMusic, { once: true });
+                    
+                    // Mobil cihaz hareketleri
+                    if (window.DeviceMotionEvent) {
+                        window.addEventListener('devicemotion', triggerMusic, { once: true });
+                    }
+                    if (window.DeviceOrientationEvent) {
+                        window.addEventListener('deviceorientation', triggerMusic, { once: true });
+                    }
                 });
             }
             
-            // HER ZAMAN müziği başlat
-            startMusic();
+            // Sayfa yüklenince müziği başlat
+            if (document.readyState === 'loading') {
+                document.addEventListener('DOMContentLoaded', startMusic);
+            } else {
+                startMusic();
+            }
             
-            // Her 1 saniyede pozisyonu kaydet (daha sık)
+            // Pozisyon kaydetme - her 500ms'de bir kaydet (daha responsive)
             setInterval(() => {
-                if (!audioPlayer.paused) {
-                    localStorage.setItem('musicTime', audioPlayer.currentTime);
+                if (!audioPlayer.paused && audioPlayer.currentTime > 0) {
+                    localStorage.setItem('musicTime', audioPlayer.currentTime.toString());
                 }
-            }, 1000);
+            }, 500);
             
             // Sayfa kapanırken/gizlenirken pozisyonu kaydet
-            window.addEventListener('beforeunload', () => {
-                localStorage.setItem('musicTime', audioPlayer.currentTime);
-            });
+            function saveMusicState() {
+                if (audioPlayer && !audioPlayer.paused) {
+                    localStorage.setItem('musicTime', audioPlayer.currentTime.toString());
+                    localStorage.setItem('musicPlaying', 'true');
+                } else {
+                    localStorage.setItem('musicPlaying', 'false');
+                }
+            }
             
-            window.addEventListener('pagehide', () => {
-                localStorage.setItem('musicTime', audioPlayer.currentTime);
-            });
+            window.addEventListener('beforeunload', saveMusicState);
+            window.addEventListener('pagehide', saveMusicState);
+            window.addEventListener('unload', saveMusicState);
             
             // Visibility değişince kaydet
             document.addEventListener('visibilitychange', () => {
                 if (document.hidden) {
-                    localStorage.setItem('musicTime', audioPlayer.currentTime);
+                    saveMusicState();
+                } else {
+                    // Sayfa geri gelince müziği devam ettir
+                    if (localStorage.getItem('musicPlaying') === 'true' && audioPlayer.paused) {
+                        const savedTime = parseFloat(localStorage.getItem('musicTime') || 0);
+                        audioPlayer.currentTime = savedTime;
+                        audioPlayer.play().catch(() => {});
+                    }
                 }
             });
             
-            // Kullanıcı tıklayınca müziği başlat (mobil için)
-            document.addEventListener('click', function initAudio() {
-                if (audioPlayer.paused) {
-                    startMusic();
-                }
-            }, { once: true });
+            // Ses seviyesi kontrolü
+            audioPlayer.addEventListener('volumechange', () => {
+                localStorage.setItem('musicVolume', audioPlayer.volume.toString());
+            });
+            
+            // Kayıtlı ses seviyesini uygula
+            const savedVolume = localStorage.getItem('musicVolume');
+            if (savedVolume) {
+                audioPlayer.volume = parseFloat(savedVolume);
+            }
+            
+            // Hata durumunda yeniden başlatma
+            audioPlayer.addEventListener('error', () => {
+                console.log('🎵 Müzik yükleme hatası, yeniden denenecek...');
+                setTimeout(() => {
+                    audioPlayer.load();
+                    if (localStorage.getItem('musicPlaying') === 'true') {
+                        startMusic();
+                    }
+                }, 2000);
+            });
+            
+            console.log('🎵 Global Müzik Sistemi İnitialize Edildi');
         })();
     </script>
 </body>
