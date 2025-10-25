@@ -58,6 +58,20 @@
             -moz-osx-font-smoothing: grayscale;
             -o-font-smoothing: antialiased;
         }
+        
+        /* Mobil yatay scroll düzeltmesi */
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100% !important;
+        }
+        
+        body {
+            position: relative;
+        }
+        
+        * {
+            max-width: 100%;
+        }
         /* Benefit görselleri için sabit boyut */
         
         .preview_benefit_image-wrapper {

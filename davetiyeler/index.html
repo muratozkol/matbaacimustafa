@@ -54,6 +54,20 @@
             -o-font-smoothing: antialiased;
         }
         
+        /* Mobil yatay scroll düzeltmesi */
+        html, body {
+            overflow-x: hidden !important;
+            max-width: 100% !important;
+        }
+        
+        body {
+            position: relative;
+        }
+        
+        * {
+            max-width: 100%;
+        }
+        
         /* Hide Webflow Badge */
         .w-webflow-badge {
             display: none !important;
