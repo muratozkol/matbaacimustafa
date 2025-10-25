@@ -1280,12 +1280,17 @@
             user-select: none;
             animation: imageZoom 0.3s ease;
             cursor: zoom-in;
-            transition: transform 0.2s ease-out;
+            transition: transform 0.3s ease;
             transform-origin: center center;
+            touch-action: none; /* Prevent default touch behaviors */
         }
 
         .lightbox-image.zoomed {
-            cursor: zoom-out;
+            cursor: grab;
+        }
+        
+        .lightbox-image.zoomed:active {
+            cursor: grabbing;
         }
 
         @keyframes imageZoom {
@@ -1529,9 +1534,7 @@
             document.body.style.overflow = '';
             lightboxImage.style.display = 'none';
             // Reset zoom on close
-            isZoomed = false;
-            lightboxImage.classList.remove('zoomed');
-            lightboxImage.style.transform = 'scale(1)';
+            resetZoom();
         }
 
         function loadImage(src) {
@@ -1548,6 +1551,9 @@
         }
 
         function navigateImage(direction) {
+            // Prevent navigation if zoomed
+            if (scale > 1) return;
+            
             currentImageIndex += direction;
             
             // Loop around if at start/end
@@ -1558,9 +1564,7 @@
             }
             
             // Reset zoom when changing images
-            isZoomed = false;
-            lightboxImage.classList.remove('zoomed');
-            lightboxImage.style.transform = 'scale(1)';
+            resetZoom();
             
             loadImage(galleryImages[currentImageIndex]);
             updateCounter();
@@ -1575,10 +1579,16 @@
             if (!lightbox.classList.contains('active')) return;
             
             if (e.key === 'Escape') {
-                closeLightbox();
-            } else if (e.key === 'ArrowLeft') {
+                if (scale > 1) {
+                    // First Escape: zoom out
+                    resetZoom();
+                } else {
+                    // Second Escape: close lightbox
+                    closeLightbox();
+                }
+            } else if (e.key === 'ArrowLeft' && scale === 1) {
                 navigateImage(-1);
-            } else if (e.key === 'ArrowRight') {
+            } else if (e.key === 'ArrowRight' && scale === 1) {
                 navigateImage(1);
             }
         });
@@ -1595,58 +1605,221 @@
             e.preventDefault();
         });
 
-        // Zoom functionality - Click to zoom in/out (2.5x)
+        // ==========================================
+        // PROFESSIONAL ZOOM SYSTEM
+        // ==========================================
+        let scale = 1;
+        let panning = false;
+        let pointX = 0;
+        let pointY = 0;
+        let start = { x: 0, y: 0 };
+        let isPinching = false;
+        let lastDistance = 0;
+        let hasMoved = false; // Track if mouse/touch moved during drag
+
+        // Desktop: Click to zoom
         lightboxImage.addEventListener('click', function(e) {
-            e.stopPropagation(); // Prevent lightbox close
+            if (isPinching || hasMoved) return; // Ignore if pinching or just finished dragging
+            e.stopPropagation();
             
-            isZoomed = !isZoomed;
-            lightboxImage.classList.toggle('zoomed', isZoomed);
-            
-            if (!isZoomed) {
-                lightboxImage.style.transform = 'scale(1)';
+            if (scale === 1) {
+                // Zoom in
+                scale = 2.5;
+                isZoomed = true;
+                lightboxImage.style.cursor = 'grab';
+                
+                // Calculate zoom point based on click position (FIXED: inverted coordinates)
+                const rect = lightboxImage.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width;
+                const y = (e.clientY - rect.top) / rect.height;
+                
+                // Correct calculation: move opposite direction to keep click point centered
+                pointX = -(x - 0.5) * rect.width * (scale - 1);
+                pointY = -(y - 0.5) * rect.height * (scale - 1);
             } else {
-                lightboxImage.style.transform = `scale(${zoomLevel})`;
+                // Zoom out
+                scale = 1;
+                isZoomed = false;
+                pointX = 0;
+                pointY = 0;
+                lightboxImage.style.cursor = 'zoom-in';
+            }
+            
+            updateImageTransform();
+        });
+
+        // Desktop: Pan with mouse when zoomed
+        lightboxImage.addEventListener('mousedown', function(e) {
+            if (scale === 1) return;
+            e.preventDefault();
+            e.stopPropagation();
+            start = { x: e.clientX - pointX, y: e.clientY - pointY };
+            panning = true;
+            hasMoved = false; // Reset move flag
+            lightboxImage.style.cursor = 'grabbing';
+        });
+
+        document.addEventListener('mousemove', function(e) {
+            if (!panning || scale === 1) return;
+            e.preventDefault();
+            
+            hasMoved = true; // Mark that we moved
+            
+            pointX = e.clientX - start.x;
+            pointY = e.clientY - start.y;
+            
+            // Limit panning boundaries
+            const rect = lightboxImage.getBoundingClientRect();
+            const maxX = (rect.width * scale - rect.width) / 2;
+            const maxY = (rect.height * scale - rect.height) / 2;
+            
+            pointX = Math.max(-maxX, Math.min(maxX, pointX));
+            pointY = Math.max(-maxY, Math.min(maxY, pointY));
+            
+            updateImageTransform();
+        });
+
+        document.addEventListener('mouseup', function(e) {
+            if (panning) {
+                e.preventDefault();
+                e.stopPropagation();
+                panning = false;
+                if (scale > 1) {
+                    lightboxImage.style.cursor = 'grab';
+                }
+                // Reset hasMoved after a short delay to prevent click event
+                setTimeout(() => { hasMoved = false; }, 100);
             }
         });
 
-        // Mouse tracking for zoomed image
-        lightboxContent.addEventListener('mousemove', function(e) {
-            if (!isZoomed) return;
-
-            const rect = lightboxImage.getBoundingClientRect();
-            const x = (e.clientX - rect.left) / rect.width;
-            const y = (e.clientY - rect.top) / rect.height;
-
-            // Update transform origin based on mouse position
-            lightboxImage.style.transformOrigin = `${x * 100}% ${y * 100}%`;
-            lightboxImage.style.transform = `scale(${zoomLevel})`;
-        });
-
-        // Touch swipe support for mobile
-        let touchStartX = 0;
-        let touchEndX = 0;
-
-        lightbox.addEventListener('touchstart', function(e) {
-            touchStartX = e.changedTouches[0].screenX;
-        });
-
-        lightbox.addEventListener('touchend', function(e) {
-            touchEndX = e.changedTouches[0].screenX;
-            handleSwipe();
-        });
-
-        function handleSwipe() {
-            const swipeThreshold = 50;
-            const diff = touchStartX - touchEndX;
+        // Mobile: Pinch to zoom (2 fingers)
+        let touches = [];
+        
+        lightboxImage.addEventListener('touchstart', function(e) {
+            touches = Array.from(e.touches);
             
-            if (Math.abs(diff) > swipeThreshold) {
-                if (diff > 0) {
-                    navigateImage(1); // Swipe left - next image
+            if (touches.length === 2) {
+                // Two finger pinch
+                e.preventDefault();
+                isPinching = true;
+                lastDistance = getDistance(touches[0], touches[1]);
+            } else if (touches.length === 1 && scale > 1) {
+                // One finger pan when zoomed
+                e.preventDefault();
+                start = { 
+                    x: touches[0].clientX - pointX, 
+                    y: touches[0].clientY - pointY 
+                };
+                panning = true;
+            }
+        }, { passive: false });
+
+        lightboxImage.addEventListener('touchmove', function(e) {
+            if (e.touches.length === 2 && isPinching) {
+                // Pinch zoom
+                e.preventDefault();
+                touches = Array.from(e.touches);
+                
+                const currentDistance = getDistance(touches[0], touches[1]);
+                const delta = currentDistance - lastDistance;
+                
+                scale += delta * 0.01;
+                scale = Math.max(1, Math.min(4, scale)); // Limit between 1x and 4x
+                
+                lastDistance = currentDistance;
+                isZoomed = scale > 1;
+                
+                updateImageTransform();
+            } else if (e.touches.length === 1 && scale > 1 && panning) {
+                // Pan when zoomed
+                e.preventDefault();
+                
+                const touch = e.touches[0];
+                pointX = touch.clientX - start.x;
+                pointY = touch.clientY - start.y;
+                
+                // Limit panning boundaries
+                const rect = lightboxImage.getBoundingClientRect();
+                const maxX = (rect.width * scale - rect.width) / 2;
+                const maxY = (rect.height * scale - rect.height) / 2;
+                
+                pointX = Math.max(-maxX, Math.min(maxX, pointX));
+                pointY = Math.max(-maxY, Math.min(maxY, pointY));
+                
+                updateImageTransform();
+            }
+        }, { passive: false });
+
+        // Mobile: Double tap to reset zoom
+        let lastTap = 0;
+        lightboxImage.addEventListener('touchend', function(e) {
+            const currentTime = new Date().getTime();
+            const tapLength = currentTime - lastTap;
+            
+            // Double tap detected (within 300ms)
+            if (tapLength < 300 && tapLength > 0) {
+                if (scale > 1) {
+                    // Reset zoom on double tap
+                    resetZoom();
+                }
+                e.preventDefault();
+            }
+            lastTap = currentTime;
+            
+            // Handle pinch end
+            if (e.touches.length < 2) {
+                isPinching = false;
+            }
+            if (e.touches.length === 0) {
+                panning = false;
+                
+                // Keep zoom if still zoomed (DON'T auto-reset)
+                // Only update transform, don't reset scale
+                if (scale > 1) {
+                    isZoomed = true;
                 } else {
-                    navigateImage(-1); // Swipe right - previous image
+                    isZoomed = false;
                 }
             }
+        });
+
+        function getDistance(touch1, touch2) {
+            const dx = touch1.clientX - touch2.clientX;
+            const dy = touch1.clientY - touch2.clientY;
+            return Math.sqrt(dx * dx + dy * dy);
         }
+
+        function updateImageTransform() {
+            lightboxImage.style.transform = `translate(${pointX}px, ${pointY}px) scale(${scale})`;
+            lightboxImage.style.transition = panning || isPinching ? 'none' : 'transform 0.3s ease';
+        }
+
+        // Reset zoom when changing images
+        function resetZoom() {
+            scale = 1;
+            pointX = 0;
+            pointY = 0;
+            isZoomed = false;
+            panning = false;
+            isPinching = false;
+            lightboxImage.style.cursor = 'zoom-in';
+            updateImageTransform();
+        }
+
+        // Disable navigation arrows when zoomed (force manual nav)
+        document.querySelector('.lightbox-prev').addEventListener('click', function(e) {
+            if (scale > 1) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
+
+        document.querySelector('.lightbox-next').addEventListener('click', function(e) {
+            if (scale > 1) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+        });
     </script>
     
     <!-- 🎵 KUSURSUZ MÜZİK SİSTEMİ v2.0 - Sayfa geçişlerinde ASLA kapanmaz! -->
