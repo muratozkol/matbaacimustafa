@@ -624,6 +624,50 @@
                 behavior: 'smooth'
             });
         });
+
+        // 🎵 Background Music System
+        (function() {
+            const audioPlayer = document.createElement('audio');
+            audioPlayer.id = 'bgMusic';
+            audioPlayer.loop = true;
+            audioPlayer.volume = 0.5;
+            audioPlayer.preload = 'auto';
+            audioPlayer.innerHTML = '<source src="../music.mp3" type="audio/mpeg">';
+            document.body.appendChild(audioPlayer);
+            
+            const savedTime = parseFloat(localStorage.getItem('musicTime') || 0);
+            
+            function startMusic() {
+                audioPlayer.currentTime = savedTime;
+                audioPlayer.play().catch(err => console.log('Müzik hatası:', err));
+            }
+            
+            startMusic();
+            
+            setInterval(() => {
+                if (!audioPlayer.paused) {
+                    localStorage.setItem('musicTime', audioPlayer.currentTime);
+                }
+            }, 1000);
+            
+            window.addEventListener('beforeunload', () => {
+                localStorage.setItem('musicTime', audioPlayer.currentTime);
+            });
+            
+            window.addEventListener('pagehide', () => {
+                localStorage.setItem('musicTime', audioPlayer.currentTime);
+            });
+            
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    localStorage.setItem('musicTime', audioPlayer.currentTime);
+                }
+            });
+            
+            document.addEventListener('click', function initAudio() {
+                if (audioPlayer.paused) startMusic();
+            }, { once: true });
+        })();
     </script>
 </body>
 

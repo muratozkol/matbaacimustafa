@@ -52,6 +52,11 @@
     <link rel="icon" type="image/png" sizes="192x192" href="android-chrome-192x192.png">
     <link rel="icon" type="image/png" sizes="512x512" href="android-chrome-512x512.png">
     <link rel="manifest" href="site.webmanifest">
+    
+    <!-- 🚀 Performance Optimization: Preload Critical Images -->
+    <link rel="preload" as="image" href="images/Logo.png" fetchpriority="high">
+    <link rel="preload" as="image" href="header-slider-images/header1.jpg" fetchpriority="high">
+    
     <!-- Keep this css code to improve the font quality-->
     <style>
         * {
@@ -73,6 +78,41 @@
         * {
             max-width: 100%;
         }
+        
+        /* 🎯 Full-width slider - Complete breakout from container */
+        .section_preview_header .padding-global {
+            padding-left: 0 !important;
+            padding-right: 0 !important;
+        }
+        
+        .section_preview_header .container-large {
+            max-width: none !important;
+        }
+        
+        .section_preview_header .preview_header_component {
+            width: 100%;
+        }
+        
+        /* Keep title centered with padding */
+        .section_preview_header .preview_header_component > .margin-bottom {
+            padding-left: 5%;
+            padding-right: 5%;
+        }
+        
+        /* Slider full width without padding */
+        .section_preview_header .preview_header_content-bottom {
+            width: 100vw;
+            max-width: 100vw;
+            margin: 0;
+            padding: 0;
+        }
+        
+        .section_preview_header .preview_header_images-layout {
+            width: 100%;
+            overflow: visible;
+        }
+        
+        
         /* Benefit görselleri için sabit boyut */
         
         .preview_benefit_image-wrapper {
@@ -118,7 +158,7 @@
             <header data-w-id="602c2727-700f-0f65-02c0-3ae102cd6814" class="section_preview_header">
                 <div data-collapse="medium" data-animation="default" data-duration="400" fs-scrolldisable-element="smart-nav" data-easing="ease" data-easing2="ease" role="banner" class="navbar_component w-nav">
                     <div class="navbar_container">
-                        <a href="index.html" id="w-node-_9b4a640d-cf99-72f2-3418-aab9b151536e-b151536c" class="navbar_logo-link w-nav-brand"><img width="150" loading="lazy" alt="Matbaacı Mustafa" src="images/Logo.png" class="navbar_logo"></a>
+                        <a href="index.html" id="w-node-_9b4a640d-cf99-72f2-3418-aab9b151536e-b151536c" class="navbar_logo-link w-nav-brand"><img width="150" fetchpriority="high" alt="Matbaacı Mustafa" src="images/Logo.png" class="navbar_logo"></a>
                         <nav role="navigation" blocks-name="navbar2_menu" blocks-slot-children="ST232" id="w-node-_9b4a640d-cf99-72f2-3418-aab9b1515370-b151536c" class="navbar_menu w-nav-menu">
                             <a href="index.html" aria-current="page" class="navbar_link w-nav-link w--current">Anasayfa</a>
                             <a href="davetiyeler/" class="navbar_link w-nav-link">Davetiyeler</a>
@@ -147,13 +187,15 @@
                                     <div class="text-align-center">
                                         <div class="max-width-large">
                                             <div class="margin-bottom margin-small">
-                                                <h1 data-w-id="602c2727-700f-0f65-02c0-3ae102cd68b3" style="-webkit-transform:translate3d(0, 40px, 0) scale3d(1, 1, 1) rotateX(0) rotateY(0) rotateZ(0) skew(0, 0);-moz-transform:translate3d(0, 40px, 0) scale3d(1, 1, 1) rotateX(0) rotateY(0) rotateZ(0) skew(0, 0);-ms-transform:translate3d(0, 40px, 0) scale3d(1, 1, 1) rotateX(0) rotateY(0) rotateZ(0) skew(0, 0);transform:translate3d(0, 40px, 0) scale3d(1, 1, 1) rotateX(0) rotateY(0) rotateZ(0) skew(0, 0);opacity:0"
+                                                <h1 data-w-id="602c2727-700f-0f65-02c0-3ae102cd68b3" style="-webkit-transform:translate3d(0, 40px, 0) scale3d(1, 1, 1) rotateX(0) rotateY(0) rotateZ(0) skew(0, 0);-moz-transform:translate3d(0, 40px, 0) scale3d(1, 1, 1) rotateX(0) rotateY(0) rotateZ(0) skew(0, 0);-ms-transform:translate3d(0, 40px, 0) scale3d(1, 1, 1) rotateX(0) rotateY(0) rotateZ(0) skew(0, 0);transform:translate3d(0, 40px, 0) scale3d(1, 1, 1) rotateX(0) rotateY(0) rotateZ(0) skew(0, 0);opacity:0;font-size:2.8rem"
                                                     class="heading-style-h1">Aşkınızın Hikayesi, Davetiyenizle Başlasın! <br><span class="text-highlight"> Sonsuzluğa İlk
                             Adım</span></h1>
                                             </div>
 
                                             <div class="margin-top margin-medium">
-                                                
+                                                <a href="davetiyeler/" style="display:inline-block;background:#ffffff;color:#000000;padding:16px 40px;border-radius:8px;text-decoration:none;font-weight:600;font-size:1.1rem;transition:background 0.5s ease;box-shadow:0 2px 8px rgba(0, 0, 0, 0.429)" onmouseover="this.style.background='#a0f0f9'" onmouseout="this.style.background='#ffffff'">
+                                                    Tüm Davetiyeleri Gör
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
@@ -162,9 +204,9 @@
                                     <div class="preview_header_images-layout">
                                         <div class="preview_header_image-list-top">
                                             <div id="w-node-_602c2727-700f-0f65-02c0-3ae102cd68c3-7d4beece" class="preview_header_image-list">
-                                                <div id="w-node-_602c2727-700f-0f65-02c0-3ae102cd68c4-7d4beece" class="preview_header_image-wrapper"><img id="w-node-_602c2727-700f-0f65-02c0-3ae102cd68c5-7d4beece" sizes="(max-width: 832px) 100vw, 832px" alt="Preview Image" src="header-slider-images/header1.jpg" loading="lazy" class="preview_header_image"></div>
-                                                <div id="w-node-_602c2727-700f-0f65-02c0-3ae102cd68c6-7d4beece" class="preview_header_image-wrapper"><img id="w-node-_602c2727-700f-0f65-02c0-3ae102cd68c7-7d4beece" sizes="(max-width: 832px) 100vw, 832px" alt="Preview Image" src="header-slider-images/header8.jpg" loading="lazy" class="preview_header_image"></div>
-                                                <div id="w-node-_602c2727-700f-0f65-02c0-3ae102cd68c8-7d4beece" class="preview_header_image-wrapper"><img id="w-node-_602c2727-700f-0f65-02c0-3ae102cd68c9-7d4beece" sizes="(max-width: 832px) 100vw, 832px" alt="Preview Image" src="header-slider-images/header2.jpg" loading="lazy" class="preview_header_image"></div>
+                                                <div id="w-node-_602c2727-700f-0f65-02c0-3ae102cd68c4-7d4beece" class="preview_header_image-wrapper"><img id="w-node-_602c2727-700f-0f65-02c0-3ae102cd68c5-7d4beece" sizes="(max-width: 832px) 100vw, 832px" alt="Preview Image" src="header-slider-images/header1.jpg" fetchpriority="high" class="preview_header_image"></div>
+                                                <div id="w-node-_602c2727-700f-0f65-02c0-3ae102cd68c6-7d4beece" class="preview_header_image-wrapper"><img id="w-node-_602c2727-700f-0f65-02c0-3ae102cd68c7-7d4beece" sizes="(max-width: 832px) 100vw, 832px" alt="Preview Image" src="header-slider-images/header8.jpg" fetchpriority="high" class="preview_header_image"></div>
+                                                <div id="w-node-_602c2727-700f-0f65-02c0-3ae102cd68c8-7d4beece" class="preview_header_image-wrapper"><img id="w-node-_602c2727-700f-0f65-02c0-3ae102cd68c9-7d4beece" sizes="(max-width: 832px) 100vw, 832px" alt="Preview Image" src="header-slider-images/header2.jpg" fetchpriority="high" class="preview_header_image"></div>
                                                 <div id="w-node-_602c2727-700f-0f65-02c0-3ae102cd68ca-7d4beece" class="preview_header_image-wrapper"><img id="w-node-_602c2727-700f-0f65-02c0-3ae102cd68cb-7d4beece" sizes="(max-width: 832px) 100vw, 832px" alt="Preview Image" src="header-slider-images/header9.jpg" loading="lazy" class="preview_header_image"></div>
                                                 <div id="w-node-_602c2727-700f-0f65-02c0-3ae102cd68cc-7d4beece" class="preview_header_image-wrapper"><img id="w-node-_602c2727-700f-0f65-02c0-3ae102cd68cd-7d4beece" sizes="(max-width: 832px) 100vw, 832px" alt="Preview Image" src="header-slider-images/header5.jpg" loading="lazy" class="preview_header_image"></div>
                                                 <div id="w-node-_602c2727-700f-0f65-02c0-3ae102cd68ce-7d4beece" class="preview_header_image-wrapper"><img id="w-node-_602c2727-700f-0f65-02c0-3ae102cd68cf-7d4beece" sizes="(max-width: 832px) 100vw, 832px" alt="Preview Image" src="header-slider-images/header6.jpg" loading="lazy" class="preview_header_image"></div>
@@ -1048,6 +1090,61 @@
                 behavior: 'smooth'
             });
         });
+
+        // 🎵 Background Music System
+        (function() {
+            const audioPlayer = document.createElement('audio');
+            audioPlayer.id = 'bgMusic';
+            audioPlayer.loop = true;
+            audioPlayer.volume = 0.5;
+            audioPlayer.preload = 'auto';
+            audioPlayer.innerHTML = '<source src="music.mp3" type="audio/mpeg">';
+            document.body.appendChild(audioPlayer);
+            
+            // localStorage'dan son pozisyonu al
+            const savedTime = parseFloat(localStorage.getItem('musicTime') || 0);
+            
+            // Müziği başlat
+            function startMusic() {
+                audioPlayer.currentTime = savedTime;
+                audioPlayer.play().catch(err => {
+                    console.log('Müzik otomatik başlatılamadı:', err);
+                });
+            }
+            
+            // HER ZAMAN müziği başlat
+            startMusic();
+            
+            // Her 1 saniyede pozisyonu kaydet (daha sık)
+            setInterval(() => {
+                if (!audioPlayer.paused) {
+                    localStorage.setItem('musicTime', audioPlayer.currentTime);
+                }
+            }, 1000);
+            
+            // Sayfa kapanırken/gizlenirken pozisyonu kaydet
+            window.addEventListener('beforeunload', () => {
+                localStorage.setItem('musicTime', audioPlayer.currentTime);
+            });
+            
+            window.addEventListener('pagehide', () => {
+                localStorage.setItem('musicTime', audioPlayer.currentTime);
+            });
+            
+            // Visibility değişince kaydet
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    localStorage.setItem('musicTime', audioPlayer.currentTime);
+                }
+            });
+            
+            // Kullanıcı tıklayınca müziği başlat (mobil için)
+            document.addEventListener('click', function initAudio() {
+                if (audioPlayer.paused) {
+                    startMusic();
+                }
+            }, { once: true });
+        })();
     </script>
 </body>
 
