@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
+        xmlns:image="http://www.google.com/schemas/sitemap-image/1.1">
+    
+    <!-- Ana Sayfa -->
+    <url>
+        <loc>https://matbaacimustafa.com.tr/</loc>
+        <lastmod>2025-10-26</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>1.0</priority>
+        <image:image>
+            <image:loc>https://matbaacimustafa.com.tr/images/Logo.png</image:loc>
+            <image:title>Matbaacı Mustafa Logo</image:title>
+        </image:image>
+        <image:image>
+            <image:loc>https://matbaacimustafa.com.tr/header-slider-images/header1.jpg</image:loc>
+            <image:title>Matbaa Hizmetleri</image:title>
+        </image:image>
+    </url>
+    
+    <!-- Davetiyeler Sayfası -->
+    <url>
+        <loc>https://matbaacimustafa.com.tr/davetiyeler/</loc>
+        <lastmod>2025-10-26</lastmod>
+        <changefreq>weekly</changefreq>
+        <priority>0.9</priority>
+        <image:image>
+            <image:loc>https://matbaacimustafa.com.tr/davetiyeler/images/davetiye1.jpg</image:loc>
+            <image:title>Düğün Davetiyesi Modeli 1</image:title>
+        </image:image>
+        <image:image>
+            <image:loc>https://matbaacimustafa.com.tr/davetiyeler/images/davetiye2.jpg</image:loc>
+            <image:title>Düğün Davetiyesi Modeli 2</image:title>
+        </image:image>
+        <image:image>
+            <image:loc>https://matbaacimustafa.com.tr/davetiyeler/images/davetiye3.jpg</image:loc>
+            <image:title>Düğün Davetiyesi Modeli 3</image:title>
+        </image:image>
+    </url>
+    
+    <!-- Hizmetler Sayfası -->
+    <url>
+        <loc>https://matbaacimustafa.com.tr/hizmetler/</loc>
+        <lastmod>2025-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.8</priority>
+    </url>
+    
+    <!-- İletişim Sayfası -->
+    <url>
+        <loc>https://matbaacimustafa.com.tr/iletisim/</loc>
+        <lastmod>2025-10-26</lastmod>
+        <changefreq>monthly</changefreq>
+        <priority>0.7</priority>
+    </url>
+    
+</urlset>

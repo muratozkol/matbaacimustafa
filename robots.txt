@@ -1,0 +1,27 @@
+# robots.txt - Matbaacı Mustafa
+# https://matbaacimustafa.com.tr/robots.txt
+
+User-agent: *
+Allow: /
+Allow: /davetiyeler/
+Allow: /hizmetler/
+Allow: /iletisim/
+
+# Disallow unnecessary files
+Disallow: /cgi-bin/
+Disallow: /*.py$
+Disallow: /*-YEDEK/
+Disallow: /*-original/
+
+# Sitemaps
+Sitemap: https://matbaacimustafa.com.tr/sitemap.xml
+
+# Crawl-delay (optional, for slower bots)
+Crawl-delay: 1
+
+# Allow all image files
+User-agent: Googlebot-Image
+Allow: /images/
+Allow: /header-slider-images/
+Allow: /benefit-images/
+Allow: /davetiyeler/images/
